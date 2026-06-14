@@ -1,0 +1,32 @@
+name: Hotels
+version: '1.2.0'
+main: com.hotels.HotelsPlugin
+api-version: '1.20'
+authors: ['Hotels']
+description: '玩家圈地创建酒店房间，支持入住/租赁、上锁、经济系统的酒店管理插件'
+depend: ['Vault']
+commands:
+    hotels:
+        description: '酒店系统主命令'
+        aliases: ['ht']
+permissions:
+    hotels.use:
+        description: '允许使用酒店系统'
+        default: true
+    hotels.create:
+        description: '允许创建房间'
+        default: true
+    hotels.remove:
+        description: '允许删除自己的房间'
+        default: true
+    hotels.admin:
+        description: '管理员权限'
+        default: op
+        children:
+            hotels.use: true
+            hotels.create: true
+            hotels.remove: true
+            hotels.bypass: true
+    hotels.bypass:
+        description: '可以入住任何房间（无视密码/锁）'
+        default: op

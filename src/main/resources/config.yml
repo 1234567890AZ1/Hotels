@@ -1,0 +1,35 @@
+# ============================================
+# Hotels 酒店系统配置文件
+# ============================================
+ScriptIrc-config-version: 1
+
+# 每个玩家最大房间数
+max-rooms-per-player: 10
+
+# 每个玩家最大合集数
+max-collections-per-player: 5
+
+# 房间最大区域大小（方块数）
+max-room-volume: 50000
+
+# 是否允许跨世界创建
+allow-cross-world: false
+
+# 入住相关
+checkin:
+  # 入住后自动传送
+  auto-teleport: true
+  # 最大入住时长（秒），0 表示不限时
+  max-stay-seconds: 0
+
+# 房间标签预设（管理员配置，房主只能从这里选）
+# 一个房间最多 3 个标签
+room-tags:
+  - 经济房
+  - 豪华房
+  - 双人房
+  - 单人房
+  - 观景房
+  - 主题房
+  - 家庭房
+  - 宠物友好
