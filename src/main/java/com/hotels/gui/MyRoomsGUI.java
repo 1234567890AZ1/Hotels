@@ -70,7 +70,7 @@ public class MyRoomsGUI {
             }
             lore.add("");
             lore.add("§e左键 §7管理房间");
-            lore.add("§e右键 §7传送至房间");
+            lore.add("§c右键 §7删除房间");
 
             meta.setLore(lore);
             item.setItemMeta(meta);

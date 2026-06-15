@@ -45,10 +45,11 @@ public class ChatInputHandler implements Listener {
 
         String message = event.getMessage().trim();
 
-        // 处理非房间上下文（合集创建/删除等）
+        // 处理非房间上下文（合集创建/删除、房间删除等）
         if (!context.contains(":") ||
             context.startsWith("deletecollection:") ||
-            context.startsWith("setcollectionduration:")) {
+            context.startsWith("setcollectionduration:") ||
+            context.startsWith("deleteroom:")) {
             handleNonRoomContext(player, context, message);
             return;
         }
@@ -182,6 +183,23 @@ public class ChatInputHandler implements Listener {
                     player.sendMessage("§c合集 §e" + name + " §c已删除");
                 } else {
                     player.sendMessage("§c合集不存在");
+                }
+            } else {
+                player.sendMessage("§c已取消删除");
+            }
+            return;
+        }
+
+        if (context.startsWith("deleteroom:")) {
+            String roomId = context.substring("deleteroom:".length());
+            if (message.equalsIgnoreCase("confirm") || message.equalsIgnoreCase("yes") || message.equals("确认")) {
+                com.hotels.model.HotelRoom room = plugin.getRoomStorage().getRoom(roomId);
+                if (room != null) {
+                    String name = room.getName();
+                    plugin.getRoomStorage().removeRoom(roomId);
+                    player.sendMessage("§c房间 §e" + name + " §c已删除");
+                } else {
+                    player.sendMessage("§c房间不存在");
                 }
             } else {
                 player.sendMessage("§c已取消删除");

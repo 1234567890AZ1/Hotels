@@ -280,14 +280,10 @@ public class GUIListener implements Listener {
                     // 左键 - 管理房间
                     RoomManageGUI.open(player, room, plugin);
                 } else if (event.isRightClick()) {
-                    // 右键 - 传送
-                    Location loc = new Location(
-                            Bukkit.getWorld(room.getWorldName()),
-                            room.getSpawnX(), room.getSpawnY(), room.getSpawnZ(),
-                            room.getSpawnYaw(), room.getSpawnPitch()
-                    );
-                    player.teleport(loc);
-                    player.sendMessage("§a已传送到房间 " + room.getName());
+                    // 右键 - 删除房间
+                    player.closeInventory();
+                    player.sendMessage("§c确认删除房间 §e" + room.getName() + "§c？在聊天框输入 §e确认 §c或 §e取消");
+                    plugin.getChatInputHandler().expectInput(player, "deleteroom:" + room.getId());
                 }
                 return;
             }
