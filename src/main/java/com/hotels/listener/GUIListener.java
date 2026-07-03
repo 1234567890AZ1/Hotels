@@ -240,28 +240,37 @@ public class GUIListener implements Listener {
 
                     // 检查点击的是不是房间
                     String roomName = itemName;
-                    for (HotelRoom room : plugin.getRoomStorage().getRoomsByOwner(player.getUniqueId())) {
-                        if (room.getName().equals(roomName)) {
-                            // 检查是否有权限管理此合集
-                            if (!col.canManage(player.getUniqueId())) {
-                                player.sendMessage("§c你没有权限管理此合集");
-                                return;
-                            }
-                            // 切换加入/移出
-                            if (col.getRoomIds().contains(room.getId())) {
-                                col.removeRoom(room.getId());
-                                player.sendMessage("§c已从合集移出房间 §e" + room.getName());
-                            } else {
-                                col.addRoom(room.getId());
-                                player.sendMessage("§a已添加房间 §e" + room.getName() + " §a到合集");
-                            }
-                            plugin.getRoomStorage().saveCollection(col);
-                            CollectionGUI.openManageCollection(player, col, plugin);
-                            return;
+
+                    // 判断当前是管理模式还是浏览模式
+                    // 管理模式：标题是 "§8§l✦ 合集名" 且玩家是房主/管理员
+                    // 浏览模式：从浏览酒店进来的
+                    boolean isManageMode = false;
+                    for (RoomCollection c : plugin.getRoomStorage().getAllCollections()) {
+                        if (c.getName().equals(infoName) && c.canManage(player.getUniqueId())) {
+                            isManageMode = true;
+                            break;
                         }
                     }
 
-                    // 不是自己的房间 - 尝试入住（浏览模式）
+                    if (isManageMode) {
+                        // 管理模式 - 加入/移出房间
+                        for (HotelRoom room : plugin.getRoomStorage().getRoomsByOwner(player.getUniqueId())) {
+                            if (room.getName().equals(roomName)) {
+                                if (col.getRoomIds().contains(room.getId())) {
+                                    col.removeRoom(room.getId());
+                                    player.sendMessage("§c已从合集移出房间 §e" + room.getName());
+                                } else {
+                                    col.addRoom(room.getId());
+                                    player.sendMessage("§a已添加房间 §e" + room.getName() + " §a到合集");
+                                }
+                                plugin.getRoomStorage().saveCollection(col);
+                                CollectionGUI.openManageCollection(player, col, plugin);
+                                return;
+                            }
+                        }
+                    }
+
+                    // 浏览模式 - 尝试入住
                     for (HotelRoom room : plugin.getRoomStorage().getCollectionRooms(col.getId())) {
                         if (room.getName().equals(roomName)) {
                             player.closeInventory();
