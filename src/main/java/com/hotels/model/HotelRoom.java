@@ -39,6 +39,8 @@ public class HotelRoom implements ConfigurationSerializable {
     private long checkinTime;           // 入住时间（客人入住的时间戳）
     private int durationMinutes;        // 使用时长（分钟），0=不限时，-1=使用合集默认
     private List<String> tags;          // 标签列表
+    private double discountPrice;       // 折扣价（-1=无折扣）
+    private long discountExpire;        // 折扣到期时间戳（0=无折扣）
 
     public HotelRoom() {
         this.id = UUID.randomUUID().toString().substring(0, 8);
@@ -46,6 +48,8 @@ public class HotelRoom implements ConfigurationSerializable {
         this.locked = false;
         this.durationMinutes = -1;
         this.tags = new ArrayList<>();
+        this.discountPrice = -1;
+        this.discountExpire = 0;
         this.createdTime = System.currentTimeMillis();
     }
 
@@ -134,6 +138,8 @@ public class HotelRoom implements ConfigurationSerializable {
         map.put("checkinTime", checkinTime);
         map.put("durationMinutes", durationMinutes);
         map.put("tags", tags);
+        map.put("discountPrice", discountPrice);
+        map.put("discountExpire", discountExpire);
         return map;
     }
 
@@ -169,6 +175,8 @@ public class HotelRoom implements ConfigurationSerializable {
         room.checkinTime = ((Number) map.get("checkinTime")).longValue();
         room.durationMinutes = ((Number) map.getOrDefault("durationMinutes", -1)).intValue();
         room.tags = (List<String>) map.getOrDefault("tags", new ArrayList<>());
+        room.discountPrice = ((Number) map.getOrDefault("discountPrice", -1)).doubleValue();
+        room.discountExpire = ((Number) map.getOrDefault("discountExpire", 0)).longValue();
         return room;
     }
 
@@ -300,6 +308,66 @@ public class HotelRoom implements ConfigurationSerializable {
     public String getTagsDisplay() {
         if (tags.isEmpty()) return "§7无";
         return "§e" + String.join("§7, §e", tags);
+    }
+
+    // ===== 折扣操作 =====
+
+    public double getDiscountPrice() { return discountPrice; }
+    public void setDiscountPrice(double discountPrice) { this.discountPrice = discountPrice; }
+
+    public long getDiscountExpire() { return discountExpire; }
+    public void setDiscountExpire(long discountExpire) { this.discountExpire = discountExpire; }
+
+    /**
+     * 是否有有效折扣
+     */
+    public boolean hasActiveDiscount() {
+        if (discountPrice < 0) return false;
+        if (discountExpire <= 0) return false;
+        return System.currentTimeMillis() < discountExpire;
+    }
+
+    /**
+     * 获取当前实际价格
+     */
+    public double getCurrentPrice() {
+        if (hasActiveDiscount()) return discountPrice;
+        return price;
+    }
+
+    /**
+     * 获取折扣显示文本
+     */
+    public String getDiscountDisplay() {
+        if (!hasActiveDiscount()) return "";
+        long remaining = discountExpire - System.currentTimeMillis();
+        long hours = remaining / 3600000;
+        long minutes = (remaining % 3600000) / 60000;
+        String timeStr;
+        if (hours > 0) {
+            timeStr = hours + "小时" + (minutes > 0 ? minutes + "分" : "");
+        } else {
+            timeStr = minutes + "分钟";
+        }
+        return "§c§l折 扣 §7原价 §f" + price + " §7→ §a" + discountPrice + " §7(剩" + timeStr + ")";
+    }
+
+    /**
+     * 设置折扣
+     * @param discountPrice 折扣价
+     * @param durationMinutes 持续分钟
+     */
+    public void setDiscount(double discountPrice, int durationMinutes) {
+        this.discountPrice = discountPrice;
+        this.discountExpire = System.currentTimeMillis() + (durationMinutes * 60 * 1000L);
+    }
+
+    /**
+     * 取消折扣
+     */
+    public void clearDiscount() {
+        this.discountPrice = -1;
+        this.discountExpire = 0;
     }
 
     /**

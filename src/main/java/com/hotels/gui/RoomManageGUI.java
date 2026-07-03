@@ -29,25 +29,31 @@ public class RoomManageGUI {
                 "§7当前价格: §f" + room.getPrice(),
                 "§e点击设置新价格"));
 
-        // 设置标签 - Slot 11
-        inv.setItem(11, createItem(Material.NAME_TAG, "§e§l设置标签",
+        // 设置折扣 - Slot 11
+        String discountStatus = room.hasActiveDiscount() ? "§a进行中 §7(¥" + room.getDiscountPrice() + ")" : "§7未设置";
+        inv.setItem(11, createItem(Material.FIREWORK_STAR, "§e§l限时折扣",
+                "§7状态: " + discountStatus,
+                "§e点击设置折扣价和时长"));
+
+        // 设置标签 - Slot 12
+        inv.setItem(12, createItem(Material.NAME_TAG, "§e§l设置标签",
                 "§7当前: " + room.getTagsDisplay(),
                 "§e点击设置标签（最多3个）"));
 
-        // 设置密码 - Slot 12
+        // 设置密码 - Slot 13
         String pwStatus = room.hasPassword() ? "§c已设置" : "§7未设置";
-        inv.setItem(12, createItem(Material.TRIPWIRE_HOOK, "§e§l设置密码",
+        inv.setItem(13, createItem(Material.TRIPWIRE_HOOK, "§e§l设置密码",
                 "§7密码状态: " + pwStatus,
                 "§e点击设置或清除密码"));
 
-        // 切换锁定 - Slot 13
+        // 切换锁定 - Slot 14
         String lockStatus = room.isLocked() ? "§a已解锁" : "§c已锁定";
-        inv.setItem(13, createItem(Material.IRON_DOOR, "§e§l切换锁定",
+        inv.setItem(14, createItem(Material.IRON_DOOR, "§e§l切换锁定",
                 "§7当前: " + lockStatus,
                 "§e点击切换"));
 
-        // 切换状态 - Slot 14
-        inv.setItem(14, createItem(Material.REDSTONE, "§e§l切换状态",
+        // 切换状态 - Slot 15
+        inv.setItem(15, createItem(Material.REDSTONE, "§e§l切换状态",
                 "§7当前: " + getStatusDisplay(room.getStatus()),
                 "§e点击切换状态"));
 
@@ -80,6 +86,7 @@ public class RoomManageGUI {
                     "§7价格: §f" + room.getPrice(),
                     "§7标签: " + room.getTagsDisplay(),
                     "§7时长: " + (room.getDurationMinutes() == -1 ? "§7使用合集默认" : room.getDurationDisplay(0)),
+                    "§7折扣: " + (room.hasActiveDiscount() ? "§a¥" + room.getDiscountPrice() : "§7无"),
                     "§7锁定: " + (room.isLocked() ? "§c是" : "§a否"),
                     "§7密码: " + (room.hasPassword() ? "§c是" : "§a否")
             ));

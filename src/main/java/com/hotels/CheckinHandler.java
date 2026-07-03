@@ -50,21 +50,22 @@ public class CheckinHandler {
         // 检查经济
         EconomyManager economy = plugin.getEconomyManager();
         if (economy.isEnabled()) {
+            double currentPrice = room.getCurrentPrice();
             double balance = economy.getBalance(player);
-            if (balance < room.getPrice()) {
-                player.sendMessage("§c余额不足！需要 " + plugin.getEconomyManager().format(room.getPrice())
+            if (balance < currentPrice) {
+                player.sendMessage("§c余额不足！需要 " + plugin.getEconomyManager().format(currentPrice)
                         + "，你只有 " + plugin.getEconomyManager().format(balance));
                 return;
             }
 
             // 扣款
-            if (!economy.withdraw(player, room.getPrice())) {
+            if (!economy.withdraw(player, currentPrice)) {
                 player.sendMessage("§c扣款失败");
                 return;
             }
 
             // 给房主付款
-            economy.deposit(Bukkit.getOfflinePlayer(room.getOwner()), room.getPrice());
+            economy.deposit(Bukkit.getOfflinePlayer(room.getOwner()), currentPrice);
         }
 
         // 执行入住

@@ -45,11 +45,14 @@ public class ChatInputHandler implements Listener {
 
         String message = event.getMessage().trim();
 
-        // 处理非房间上下文（合集创建/删除、房间删除等）
+        // 处理非房间上下文（合集创建/删除、房间删除、折扣、合集定价等）
         if (!context.contains(":") ||
             context.startsWith("deletecollection:") ||
             context.startsWith("setcollectionduration:") ||
-            context.startsWith("deleteroom:")) {
+            context.startsWith("deleteroom:") ||
+            context.startsWith("setdiscountprice:") ||
+            context.startsWith("setdiscountduration:") ||
+            context.startsWith("setcollectionprice:")) {
             handleNonRoomContext(player, context, message);
             return;
         }
@@ -203,6 +206,107 @@ public class ChatInputHandler implements Listener {
                 }
             } else {
                 player.sendMessage("§c已取消删除");
+            }
+            return;
+        }
+
+        if (context.startsWith("setdiscountprice:")) {
+            String roomId = context.substring("setdiscountprice:".length());
+            try {
+                double price = Double.parseDouble(message);
+                if (price < 0) {
+                    player.sendMessage("§c折扣价不能为负数");
+                    return;
+                }
+                if (price > 1000000) {
+                    player.sendMessage("§c价格太高了");
+                    return;
+                }
+                player.sendMessage("§e请输入折扣持续时长（分钟），输入 0 取消:");
+                plugin.getChatInputHandler().expectInput(player, "setdiscountduration:" + roomId + ":" + price);
+            } catch (NumberFormatException e) {
+                player.sendMessage("§c请输入有效的数字");
+            }
+            return;
+        }
+
+        if (context.startsWith("setdiscountduration:")) {
+            String[] parts = context.substring("setdiscountduration:".length()).split(":", 2);
+            if (parts.length < 2) return;
+            String roomId = parts[0];
+            double discountPrice;
+            try {
+                discountPrice = Double.parseDouble(parts[1]);
+            } catch (NumberFormatException e) {
+                player.sendMessage("§c数据异常");
+                return;
+            }
+
+            try {
+                int minutes = Integer.parseInt(message);
+                if (minutes <= 0) {
+                    player.sendMessage("§c已取消折扣设置");
+                    return;
+                }
+                if (minutes > 43200) {
+                    player.sendMessage("§c时长不能超过 43200 分钟（30天）");
+                    return;
+                }
+
+                com.hotels.model.HotelRoom room = plugin.getRoomStorage().getRoom(roomId);
+                if (room == null) {
+                    player.sendMessage("§c房间不存在");
+                    return;
+                }
+                if (!room.getOwner().equals(player.getUniqueId())) {
+                    player.sendMessage("§c你不是这个房间的房主");
+                    return;
+                }
+
+                room.setDiscount(discountPrice, minutes);
+                plugin.getRoomStorage().saveRoom(room);
+                player.sendMessage("§a折扣已设置！价格 §e" + discountPrice + " §a持续 §e" + minutes + " §a分钟");
+            } catch (NumberFormatException e) {
+                player.sendMessage("§c请输入有效的数字（分钟）");
+            }
+            return;
+        }
+
+        if (context.startsWith("setcollectionprice:")) {
+            String colId = context.substring("setcollectionprice:".length());
+            try {
+                double price = Double.parseDouble(message);
+                if (price < 0) {
+                    player.sendMessage("§c价格不能为负数");
+                    return;
+                }
+                if (price > 1000000) {
+                    player.sendMessage("§c价格太高了，最高 1000000");
+                    return;
+                }
+
+                com.hotels.model.RoomCollection col = plugin.getRoomStorage().getCollection(colId);
+                if (col == null) {
+                    player.sendMessage("§c合集不存在");
+                    return;
+                }
+                if (!col.canManage(player.getUniqueId())) {
+                    player.sendMessage("§c你没有权限管理此合集");
+                    return;
+                }
+
+                int count = 0;
+                for (String roomId : col.getRoomIds()) {
+                    com.hotels.model.HotelRoom room = plugin.getRoomStorage().getRoom(roomId);
+                    if (room != null) {
+                        room.setPrice(price);
+                        plugin.getRoomStorage().saveRoom(room);
+                        count++;
+                    }
+                }
+                player.sendMessage("§a已统一设置合集 §e" + col.getName() + " §a内 §e" + count + " §a个房间的价格为 §e" + price);
+            } catch (NumberFormatException e) {
+                player.sendMessage("§c请输入有效的数字");
             }
             return;
         }

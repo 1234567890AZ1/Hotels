@@ -178,6 +178,16 @@ public class CollectionGUI {
                     "§8▸ §d点击管理"));
         }
 
+        // 一键定价按钮 - 最后一行的第6列
+        int priceSlot = size - 1;
+        if (priceSlot > 0) {
+            inv.setItem(priceSlot - 2, createItem(Material.GOLD_INGOT, "§6§l◈ 一键定价",
+                    "§7统一设置合集内所有房间的价格",
+                    "§7当前 " + inCol.size() + " 个房间",
+                    "",
+                    "§8▸ §6点击设置"));
+        }
+
         int slot = 9;
         for (HotelRoom room : myRooms) {
             boolean isInCol = col.getRoomIds().contains(room.getId());

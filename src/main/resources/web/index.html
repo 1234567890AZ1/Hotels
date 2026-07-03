@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏨 酒店房间管理系统</title>
+    <style>
+        :root {
+            --bg: #f5f2ed;
+            --surface: #ffffff;
+            --surface-alt: #faf8f5;
+            --text: #2c2416;
+            --text-muted: #7a7265;
+            --border: #e5ded4;
+            --primary: #c49a2c;
+            --primary-hover: #b0881f;
+            --primary-light: #fdf6e3;
+            --green: #5a9e6f;
+            --green-bg: #eaf5ee;
+            --red: #c0392b;
+            --red-bg: #fdecea;
+            --blue: #4a7fb5;
+            --blue-bg: #eaf1f8;
+            --orange: #d4843a;
+            --orange-bg: #fef5ed;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+            --shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.12);
+            --radius-sm: 8px;
+            --radius: 14px;
+            --radius-lg: 20px;
+            --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --font: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ============ 顶部导航 ============ */
+        .navbar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-sm);
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .navbar .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            color: var(--primary);
+            white-space: nowrap;
+        }
+        .navbar .logo .icon {
+            font-size: 1.6rem;
+        }
+        .navbar .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .player-search-wrap {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--surface-alt);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 6px 6px 6px 16px;
+            transition: var(--transition);
+        }
+        .player-search-wrap:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(196, 154, 44, 0.08);
+        }
+        .player-search-wrap input {
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: 0.9rem;
+            font-family: var(--font);
+            color: var(--text);
+            width: 140px;
+        }
+        .player-search-wrap input::placeholder {
+            color: var(--text-muted);
+        }
+        .btn-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            transition: var(--transition);
+            background: var(--surface-alt);
+            color: var(--text);
+            flex-shrink: 0;
+        }
+        .btn-icon:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+        .btn-sm {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            border: none;
+            transition: var(--transition);
+            font-family: var(--font);
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            box-shadow: 0 4px 14px rgba(196, 154, 44, 0.3);
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid var(--border);
+            color: var(--text);
+        }
+        .btn-outline:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: var(--primary-light);
+        }
+        .btn-danger {
+            background: var(--red);
+            color: #fff;
+        }
+        .btn-danger:hover {
+            background: #a93226;
+            box-shadow: 0 4px 14px rgba(192, 57, 43, 0.3);
+        }
+        .btn-sm:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        /* ============ 主布局 ============ */
+        .main-container {
+            max-width: 1320px;
+            margin: 0 auto;
+            padding: 24px 20px 48px;
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 24px;
+            align-items: start;
+        }
+        @media (max-width: 1050px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+            .navbar {
+                padding: 0 16px;
+                height: auto;
+                min-height: 56px;
+                gap: 8px;
+            }
+            .navbar .logo {
+                font-size: 1rem;
+            }
+            .player-search-wrap input {
+                width: 100px;
+            }
+        }
+        @media (max-width: 600px) {
+            .main-container {
+                padding: 12px 8px 32px;
+                gap: 14px;
+            }
+            .navbar {
+                padding: 8px 10px;
+                justify-content: center;
+            }
+            .navbar .nav-actions {
+                gap: 6px;
+            }
+            .player-search-wrap input {
+                width: 80px;
+                font-size: 0.8rem;
+            }
+            .btn-sm {
+                padding: 6px 12px;
+                font-size: 0.78rem;
+            }
+        }
+
+        /* ============ 卡片样式 ============ */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 22px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .card-header h2 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card-header h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* ============ 标签筛选栏 ============ */
+        .filter-bar {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+            align-items: center;
+        }
+        .filter-chip {
+            padding: 7px 14px;
+            border-radius: 18px;
+            border: 1.5px solid var(--border);
+            background: var(--surface);
+            cursor: pointer;
+            font-size: 0.82rem;
+            font-weight: 500;
+            transition: var(--transition);
+            font-family: var(--font);
+            white-space: nowrap;
+            color: var(--text-muted);
+        }
+        .filter-chip:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        .filter-chip.active {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+            font-weight: 600;
+        }
+        .filter-chip .count {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 1px 7px;
+            font-size: 0.72rem;
+            margin-left: 4px;
+            font-weight: 600;
+        }
+        .filter-chip.active .count {
+            background: rgba(255, 255, 255, 0.35);
+        }
+
+        /* ============ 房间网格 ============ */
+        .room-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 14px;
+        }
+        @media (max-width: 600px) {
+            .room-grid {
+                grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+                gap: 10px;
+            }
+        }
+        .room-card {
+            background: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            padding: 18px;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .room-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+        .room-card.available {
+            border-left: 4px solid var(--green);
+        }
+        .room-card.occupied {
+            border-left: 4px solid var(--red);
+            opacity: 0.9;
+        }
+        .room-card .room-icon {
+            font-size: 2.2rem;
+            text-align: center;
+            margin-bottom: 2px;
+        }
+        .room-card .room-name {
+            font-weight: 700;
+            font-size: 1rem;
+            text-align: center;
+            color: var(--text);
+        }
+        .room-card .room-tag {
+            display: inline-block;
+            align-self: center;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+        .room-card .room-status {
+            text-align: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 5px 0;
+            border-radius: 8px;
+        }
+        .room-card .room-status.available {
+            color: var(--green);
+            background: var(--green-bg);
+        }
+        .room-card .room-status.occupied {
+            color: var(--red);
+            background: var(--red-bg);
+        }
+        .room-card .room-owner {
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .room-card .room-price {
+            text-align: center;
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 0.9rem;
+        }
+        .room-card .room-actions {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .room-card .btn-xs {
+            padding: 5px 10px;
+            font-size: 0.72rem;
+            border-radius: 14px;
+            border: 1.5px solid var(--border);
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            font-family: var(--font);
+            background: var(--surface);
+            color: var(--text);
+            white-space: nowrap;
+        }
+        .room-card .btn-xs:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: var(--primary-light);
+        }
+        .room-card .btn-xs.checkin-btn {
+            background: var(--green);
+            color: #fff;
+            border-color: var(--green);
+        }
+        .room-card .btn-xs.checkin-btn:hover {
+            background: #4a8a5e;
+            border-color: #4a8a5e;
+        }
+        .room-card .status-dot {
+            position: absolute;
+            top: 12px;
+            right: 14px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        .room-card .status-dot.available {
+            background: var(--green);
+            box-shadow: 0 0 8px rgba(90, 158, 111, 0.5);
+        }
+        .room-card .status-dot.occupied {
+            background: var(--red);
+            box-shadow: 0 0 8px rgba(192, 57, 43, 0.4);
+        }
+
+        /* ============ 合集卡片 ============ */
+        .collection-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+        }
+        @media (max-width: 600px) {
+            .collection-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+        }
+        .collection-card {
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .collection-card:hover {
+            border-color: var(--blue);
+            box-shadow: var(--shadow);
+            transform: translateY(-2px);
+        }
+        .collection-card .col-icon {
+            font-size: 1.8rem;
+            text-align: center;
+        }
+        .collection-card .col-name {
+            font-weight: 700;
+            text-align: center;
+            font-size: 0.95rem;
+        }
+        .collection-card .col-count {
+            text-align: center;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+        .collection-card .col-owner {
+            text-align: center;
+            font-size: 0.72rem;
+            color: var(--text-muted);
+        }
+
+        /* ============ 侧边栏 ============ */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            position: sticky;
+            top: 80px;
+        }
+        @media (max-width: 1050px) {
+            .sidebar {
+                position: static;
+            }
+        }
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 9px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.88rem;
+        }
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+        .stat-label {
+            color: var(--text-muted);
+        }
+        .stat-value {
+            font-weight: 700;
+        }
+        .stat-value.gold {
+            color: var(--primary);
+        }
+        .stat-value.green {
+            color: var(--green);
+        }
+        .stat-value.red {
+            color: var(--red);
+        }
+        .stat-value.blue {
+            color: var(--blue);
+        }
+        .player-rooms-list {
+            list-style: none;
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 0.82rem;
+        }
+        .player-rooms-list li {
+            padding: 6px 0;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 6px;
+        }
+        .player-rooms-list li:last-child {
+            border-bottom: none;
+        }
+        .player-rooms-list .room-tag-sm {
+            font-size: 0.7rem;
+            padding: 2px 7px;
+            border-radius: 10px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .tag-available {
+            background: var(--green-bg);
+            color: var(--green);
+        }
+        .tag-occupied {
+            background: var(--red-bg);
+            color: var(--red);
+        }
+
+        /* ============ 模态框 ============ */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.55);
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.2s ease;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        .modal {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 28px 24px;
+            width: 92%;
+            max-width: 460px;
+            box-shadow: var(--shadow-lg);
+            animation: slideUp 0.3s ease;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        .modal h3 {
+            font-size: 1.2rem;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .modal .form-group {
+            margin-bottom: 14px;
+        }
+        .modal label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        .modal input,
+        .modal select {
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: var(--radius-sm);
+            border: 1.5px solid var(--border);
+            background: var(--surface-alt);
+            color: var(--text);
+            font-size: 0.95rem;
+            font-family: var(--font);
+            transition: var(--transition);
+        }
+        .modal input:focus,
+        .modal select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(196, 154, 44, 0.08);
+        }
+        .modal .btn-row {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .modal .room-select-preview {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: var(--primary-light);
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-top: 4px;
+        }
+
+        /* ============ Toast ============ */
+        .toast {
+            position: fixed;
+            bottom: 28px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 300;
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            padding: 13px 22px;
+            border-radius: 26px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: var(--shadow-lg);
+            animation: toastIn 0.35s ease, toastOut 0.35s ease 2.8s forwards;
+            text-align: center;
+            max-width: 90vw;
+            font-family: var(--font);
+        }
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(24px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+        @keyframes toastOut {
+            from {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(-50%) translateY(16px);
+            }
+        }
+        .toast-success {
+            border-color: var(--green);
+            color: var(--green);
+            background: var(--green-bg);
+        }
+        .toast-error {
+            border-color: var(--red);
+            color: var(--red);
+            background: var(--red-bg);
+        }
+        .toast-info {
+            border-color: var(--blue);
+            color: var(--blue);
+            background: var(--blue-bg);
+        }
+
+        /* ============ 加载/空状态 ============ */
+        .loading-spinner {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            gap: 10px;
+            color: var(--text-muted);
+        }
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+        }
+        .empty-state .icon {
+            font-size: 3rem;
+            margin-bottom: 8px;
+            opacity: 0.5;
+        }
+        .error-state {
+            text-align: center;
+            padding: 30px;
+            color: var(--red);
+        }
+        .error-state button {
+            margin-top: 10px;
+        }
+
+        /* ============ 滚动条 ============ */
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 10px;
+        }
+
+        /* 合集详情模态框中的房间列表 */
+        .col-room-list {
+            list-style: none;
+            max-height: 300px;
+            overflow-y: auto;
+            font-size: 0.85rem;
+        }
+        .col-room-list li {
+            padding: 8px 10px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            border-radius: 6px;
+            transition: var(--transition);
+        }
+        .col-room-list li:hover {
+            background: var(--surface-alt);
+        }
+        .col-room-list li:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ==================== 顶部导航 ==================== -->
+    <nav class="navbar">
+        <div class="logo">
+            <span class="icon">🏨</span> 酒店管理系统
+        </div>
+        <div class="nav-actions">
+            <div class="player-search-wrap" id="playerSearchWrap">
+                <span style="font-size:0.85rem;color:var(--text-muted);">👤</span>
+                <input type="text" id="playerSearchInput" placeholder="搜索玩家..." title="输入玩家名查看其房间和合集">
+                <button class="btn-icon" id="playerSearchBtn" title="搜索玩家">🔍</button>
+            </div>
+            <button class="btn-sm btn-primary" onclick="openCheckinModal()">🛎️ 办理入住</button>
+            <button class="btn-sm btn-outline" onclick="openCheckoutModal()">🚪 办理退房</button>
+            <button class="btn-icon" id="refreshBtn" title="刷新数据">🔄</button>
+        </div>
+    </nav>
+
+    <!-- ==================== 主内容区 ==================== -->
+    <div class="main-container">
+        <!-- 左侧：房间列表 + 合集 -->
+        <div style="display:flex;flex-direction:column;gap:24px;">
+                <!-- 标签筛选栏 -->
+                <div class="card">
+                    <div class="filter-bar" id="filterBar">
+                        <span class="filter-chip active" data-filter="all" onclick="setFilter('all')">🏠 全部</span>
+                    </div>
+                    <div class="room-grid" id="roomGrid">
+                        <div class="loading-spinner"><div class="spinner"></div> 加载房间中...</div>
+                    </div>
+                    <div class="empty-state" id="roomEmptyState" style="display:none;">
+                        <div class="icon">🏠</div>
+                        <p>暂无可用房间</p>
+                    </div>
+                    <div class="error-state" id="roomErrorState" style="display:none;">
+                        <p>❌ 加载房间数据失败</p>
+                        <button class="btn-sm btn-outline" onclick="loadAllData()">🔄 重试</button>
+                    </div>
+                </div>
+
+                <!-- 合集列表 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>📁 酒店合集</h2>
+                        <span style="font-size:0.8rem;color:var(--text-muted);" id="collectionCount">0 个合集</span>
+                    </div>
+                    <div class="collection-grid" id="collectionGrid">
+                        <div class="loading-spinner"><div class="spinner"></div></div>
+                    </div>
+                </div>
+            </div>
+
+        <!-- ==================== 右侧边栏 ==================== -->
+        <div class="sidebar">
+            <!-- 玩家查询 -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>👤 玩家查询</h3>
+                </div>
+                <div id="playerInfoContent">
+                    <p style="color:var(--text-muted);font-size:0.9rem;">输入玩家名并搜索以查看详情</p>
+                </div>
+            </div>
+
+            <!-- 快速统计 -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>📊 酒店概况</h3>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">🏨 总房间数</span>
+                    <span class="stat-value" id="statTotalRooms">-</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">✅ 空闲房间</span>
+                    <span class="stat-value green" id="statAvailable">-</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">🛏️ 已入住</span>
+                    <span class="stat-value red" id="statOccupied">-</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">📁 合集数量</span>
+                    <span class="stat-value blue" id="statCollections">-</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">📋 标签种类</span>
+                    <span class="stat-value gold" id="statTags">-</span>
+                </div>
+            </div>
+
+            <!-- API配置 -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>⚙️ API 配置</h3>
+                </div>
+                <div class="form-group" style="margin-bottom:8px;">
+                    <label style="font-size:0.78rem;color:var(--text-muted);">Base URL</label>
+                    <input type="text" id="apiBaseUrlInput" value="/api" style="width:100%;padding:8px 10px;border-radius:6px;border:1.5px solid var(--border);font-family:monospace;font-size:0.8rem;background:var(--surface-alt);">
+                </div>
+                <button class="btn-sm btn-outline btn-block" style="width:100%;" onclick="saveApiConfig()">💾 保存并重新加载</button>
+                <p style="font-size:0.7rem;color:var(--text-muted);margin-top:6px;">默认: /api (同源请求)</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 入住模态框 ==================== -->
+    <div class="modal-overlay" id="checkinModal" style="display:none;">
+        <div class="modal">
+            <h3>🛎️ 办理入住</h3>
+            <div class="form-group">
+                <label>玩家名称</label>
+                <input type="text" id="checkinPlayer" placeholder="输入玩家名">
+            </div>
+            <div class="form-group">
+                <label>选择房间</label>
+                <select id="checkinRoomSelect">
+                    <option value="">-- 请选择空闲房间 --</option>
+                </select>
+                <div class="room-select-preview" id="checkinRoomPreview" style="display:none;"></div>
+            </div>
+            <div class="btn-row">
+                <button class="btn-sm btn-outline" onclick="closeCheckinModal()">取消</button>
+                <button class="btn-sm btn-primary" id="checkinSubmitBtn" onclick="submitCheckin()">✅ 确认入住</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 退房模态框 ==================== -->
+    <div class="modal-overlay" id="checkoutModal" style="display:none;">
+        <div class="modal">
+            <h3>🚪 办理退房</h3>
+            <div class="form-group">
+                <label>玩家名称</label>
+                <input type="text" id="checkoutPlayer" placeholder="输入要退房的玩家名">
+            </div>
+            <p style="font-size:0.8rem;color:var(--text-muted);">系统将自动查找该玩家当前入住的房间并办理退房</p>
+            <div class="btn-row">
+                <button class="btn-sm btn-outline" onclick="closeCheckoutModal()">取消</button>
+                <button class="btn-sm btn-danger" id="checkoutSubmitBtn" onclick="submitCheckout()">✅ 确认退房</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 合集详情模态框 ==================== -->
+    <div class="modal-overlay" id="collectionDetailModal" style="display:none;">
+        <div class="modal">
+            <h3 id="collectionDetailTitle">📁 合集详情</h3>
+            <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:10px;" id="collectionDetailInfo"></p>
+            <ul class="col-room-list" id="collectionRoomList"></ul>
+            <div class="btn-row">
+                <button class="btn-sm btn-outline" onclick="closeCollectionDetailModal()">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== Toast容器 ==================== -->
+    <div id="toastContainer"></div>
+
+    <script>
+        // =============================================
+        //  API 配置
+        // =============================================
+        let API_BASE_URL = localStorage.getItem('hotel_api_base_url') || '/api';
+
+        function getApiUrl(path) {
+            const base = API_BASE_URL.replace(/\/+$/, '');
+            return `${base}${path}`;
+        }
+
+        function saveApiConfig() {
+            const input = document.getElementById('apiBaseUrlInput').value.trim();
+            if (input) {
+                API_BASE_URL = input;
+                localStorage.setItem('hotel_api_base_url', API_BASE_URL);
+                showToast('✅ API配置已保存，重新加载数据...', 'info');
+                loadAllData();
+            }
+        }
+
+        document.getElementById('apiBaseUrlInput').value = API_BASE_URL;
+
+        // =============================================
+        //  全局状态
+        // =============================================
+        let allRooms = [];
+        let allCollections = [];
+        let currentFilter = 'all';
+        let currentTagFilter = null;
+        let allTags = [];
+
+        // =============================================
+        //  HTTP 请求封装
+        // =============================================
+        async function apiGet(path) {
+            const url = getApiUrl(path);
+            const response = await fetch(url, {
+                headers: {
+                    'Accept': 'application/json',
+                },
+            });
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            return await response.json();
+        }
+
+        async function apiPost(path, body) {
+            const url = getApiUrl(path);
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify(body),
+            });
+            if (!response.ok) {
+                const errorText = await response.text().catch(() => '');
+                throw new Error(`HTTP ${response.status}: ${response.statusText}${errorText ? ' - ' + errorText : ''}`);
+            }
+            return await response.json();
+        }
+
+        // =============================================
+        //  数据加载
+        // =============================================
+        async function loadRooms(params = '') {
+            const grid = document.getElementById('roomGrid');
+            const emptyState = document.getElementById('roomEmptyState');
+            const errorState = document.getElementById('roomErrorState');
+            grid.innerHTML = '<div class="loading-spinner"><div class="spinner"></div> 加载房间中...</div>';
+            emptyState.style.display = 'none';
+            errorState.style.display = 'none';
+
+            try {
+                const query = params ? `?${params}` : '';
+                const data = await apiGet(`/rooms${query}`);
+                if (Array.isArray(data)) {
+                    allRooms = data;
+                } else if (data && Array.isArray(data.rooms)) {
+                    allRooms = data.rooms;
+                } else if (data && typeof data === 'object') {
+                    allRooms = [data];
+                } else {
+                    allRooms = [];
+                }
+            } catch (error) {
+                console.error('加载房间失败:', error);
+                errorState.style.display = 'block';
+                return;
+            }
+
+            renderRooms();
+            renderFilterBar();
+            updateStats();
+        }
+
+        function renderPlayerInfo(data, playerName) {
+            const content = document.getElementById('playerInfoContent');
+            const rooms = Array.isArray(data.rooms) ? data.rooms : [];
+            const collections = Array.isArray(data.collections) ? data.collections : [];
+            const availableRooms = rooms.filter(r => r.available === true);
+            const occupiedRooms = rooms.filter(r => r.available === false || r.owner);
+
+            content.innerHTML = `
+                <div style="text-align:center;margin-bottom:12px;">
+                    <div style="font-size:2.5rem;">👤</div>
+                    <div style="font-weight:700;font-size:1.1rem;">${escapeHtml(playerName)}</div>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">🏠 拥有房间</span>
+                    <span class="stat-value">${rooms.length} 间</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">✅ 空闲</span>
+                    <span class="stat-value green">${availableRooms.length} 间</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">🛏️ 已入住</span>
+                    <span class="stat-value red">${occupiedRooms.length} 间</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">📁 合集</span>
+                    <span class="stat-value blue">${collections.length} 个</span>
+                </div>
+                ${rooms.length > 0 ? `
+                <div style="margin-top:12px;">
+                    <strong style="font-size:0.85rem;">房间列表:</strong>
+                    <ul class="player-rooms-list">
+                        ${rooms.map(r => `
+                            <li>
+                                <span>🏠 ${escapeHtml(r.name || r.id)}</span>
+                                <span class="room-tag-sm ${r.available ? 'tag-available' : 'tag-occupied'}">${r.available ? '空闲' : '已入住'}</span>
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+                ` : ''}
+                ${collections.length > 0 ? `
+                <div style="margin-top:8px;">
+                    <strong style="font-size:0.85rem;">合集:</strong>
+                    <ul class="player-rooms-list">
+                        ${collections.map(c => `
+                            <li>
+                                <span>📁 ${escapeHtml(c.name || c.id)}</span>
+                                <span style="font-size:0.7rem;color:var(--text-muted);">${Array.isArray(c.rooms) ? c.rooms.length : 0}间</span>
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+                ` : ''}
+                <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;">
+                    <button class="btn-sm btn-outline" onclick="document.getElementById('checkinPlayer').value='${escapeHtml(playerName)}';openCheckinModal();">🛎️ 为该玩家入住</button>
+                    ${occupiedRooms.length > 0 ? `<button class="btn-sm btn-danger" onclick="document.getElementById('checkoutPlayer').value='${escapeHtml(playerName)}';openCheckoutModal();">🚪 退房</button>` : ''}
+                </div>
+            `;
+        }
+
+        // =============================================
+        //  入住 / 退房
+        // =============================================
+        function openCheckinModal() {
+            const modal = document.getElementById('checkinModal');
+            const select = document.getElementById('checkinRoomSelect');
+            const availableRooms = allRooms.filter(r => r.available === true);
+            select.innerHTML = '<option value="">-- 请选择空闲房间 --</option>' +
+                availableRooms.map(r =>
+                    `<option value="${escapeHtml(r.id)}">${escapeHtml(r.name || r.id)} ${r.tag ? '[' + r.tag + ']' : ''}</option>`
+                ).join('');
+            document.getElementById('checkinRoomPreview').style.display = 'none';
+            document.getElementById('checkinSubmitBtn').disabled = false;
+            document.getElementById('checkinSubmitBtn').textContent = '✅ 确认入住';
+            modal.style.display = 'flex';
+
+            select.onchange = function() {
+                const preview = document.getElementById('checkinRoomPreview');
+                if (select.value) {
+                    const room = allRooms.find(r => r.id === select.value);
+                    if (room) {
+                        preview.style.display = 'flex';
+                        preview.innerHTML = `🏠 已选择: <strong>${escapeHtml(room.name || room.id)}</strong> ${room.tag ? '[' + escapeHtml(room.tag) + ']' : ''}`;
+                    }
+                } else {
+                    preview.style.display = 'none';
+                }
+            };
+        }
+
+        function closeCheckinModal() {
+            document.getElementById('checkinModal').style.display = 'none';
+        }
+
+        async function submitCheckin() {
+            const player = document.getElementById('checkinPlayer').value.trim();
+            const roomId = document.getElementById('checkinRoomSelect').value;
+            if (!player) { showToast('请输入玩家名称', 'error'); return; }
+            if (!roomId) { showToast('请选择房间', 'error'); return; }
+
+            const btn = document.getElementById('checkinSubmitBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳ 处理中...';
+
+            try {
+                await apiPost('/checkin', { player, roomId });
+                showToast('✅ ' + player + ' 已成功入住', 'success');
+                closeCheckinModal();
+                loadAllData();
+            } catch (error) {
+                showToast('❌ 入住失败: ' + error.message, 'error');
+            }
+            btn.disabled = false;
+            btn.textContent = '✅ 确认入住';
+        }
+
+        function quickCheckin(roomId) {
+            document.getElementById('checkinRoomSelect').value = roomId;
+            document.getElementById('checkinPlayer').value = '';
+            document.getElementById('checkinPlayer').focus();
+            openCheckinModal();
+            document.getElementById('checkinRoomSelect').value = roomId;
+            const preview = document.getElementById('checkinRoomPreview');
+            const room = allRooms.find(r => r.id === roomId);
+            if (room) {
+                preview.style.display = 'flex';
+                preview.innerHTML = '🏠 已选择: <strong>' + escapeHtml(room.name || room.id) + '</strong>';
+            }
+        }
+
+        function openCheckoutModal() {
+            document.getElementById('checkoutModal').style.display = 'flex';
+            document.getElementById('checkoutSubmitBtn').disabled = false;
+            document.getElementById('checkoutSubmitBtn').textContent = '✅ 确认退房';
+        }
+
+        function closeCheckoutModal() {
+            document.getElementById('checkoutModal').style.display = 'none';
+        }
+
+        async function submitCheckout() {
+            const player = document.getElementById('checkoutPlayer').value.trim();
+            if (!player) { showToast('请输入玩家名称', 'error'); return; }
+
+            const btn = document.getElementById('checkoutSubmitBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳ 处理中...';
+
+            try {
+                await apiPost('/checkout', { player });
+                showToast('✅ ' + player + ' 已成功退房', 'success');
+                closeCheckoutModal();
+                loadAllData();
+            } catch (error) {
+                showToast('❌ 退房失败: ' + error.message, 'error');
+            }
+            btn.disabled = false;
+            btn.textContent = '✅ 确认退房';
+        }

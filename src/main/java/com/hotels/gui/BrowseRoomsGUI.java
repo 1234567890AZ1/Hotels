@@ -138,7 +138,12 @@ public class BrowseRoomsGUI {
 
             List<String> lore = new ArrayList<>();
             lore.add("§7房主: §f" + room.getOwnerName());
-            lore.add("§7价格: §f" + room.getPrice());
+            if (room.hasActiveDiscount()) {
+                lore.add("§7价格: §m§f" + room.getPrice() + "§r §a§l¥" + room.getDiscountPrice());
+                lore.add(room.getDiscountDisplay());
+            } else {
+                lore.add("§7价格: §f" + room.getPrice());
+            }
             lore.add("§7标签: " + room.getTagsDisplay());
             lore.add("§7世界: §f" + room.getWorldName());
             if (room.hasPassword()) {

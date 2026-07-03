@@ -226,6 +226,18 @@ public class GUIListener implements Listener {
                         return;
                     }
 
+                    // 检查是否点击了一键定价按钮
+                    if (itemName.contains("一键定价")) {
+                        if (!col.canManage(player.getUniqueId())) {
+                            player.sendMessage("§c你没有权限管理此合集");
+                            return;
+                        }
+                        player.closeInventory();
+                        player.sendMessage("§e请输入合集内所有房间的统一价格（数字）:");
+                        plugin.getChatInputHandler().expectInput(player, "setcollectionprice:" + col.getId());
+                        return;
+                    }
+
                     // 检查点击的是不是房间
                     String roomName = itemName;
                     for (HotelRoom room : plugin.getRoomStorage().getRoomsByOwner(player.getUniqueId())) {
@@ -379,10 +391,19 @@ public class GUIListener implements Listener {
                 player.sendMessage("§e请输入新价格（数字）:");
                 plugin.getChatInputHandler().expectInput(player, "setprice:" + targetRoom.getId());
                 break;
-            case 11: // 设置标签
-                TagSelectGUI.open(player, targetRoom, plugin);
+            case 11: // 设置折扣
+                player.closeInventory();
+                if (targetRoom.hasActiveDiscount()) {
+                    targetRoom.clearDiscount();
+                    plugin.getRoomStorage().saveRoom(targetRoom);
+                    player.sendMessage("§a已取消折扣");
+                    RoomManageGUI.open(player, targetRoom, plugin);
+                } else {
+                    player.sendMessage("§e请输入折扣价（数字）:");
+                    plugin.getChatInputHandler().expectInput(player, "setdiscountprice:" + targetRoom.getId());
+                }
                 break;
-            case 12: // 设置密码
+            case 12: // 设置标签
                 player.closeInventory();
                 if (targetRoom.hasPassword()) {
                     targetRoom.setPassword(null);
