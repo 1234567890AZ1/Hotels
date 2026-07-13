@@ -308,6 +308,16 @@ public class GUIListener implements Listener {
             boolean isManageMode = guiName.contains(":manage_collection");
 
             if (isManageMode) {
+                int page = 0;
+                try {
+                    String[] parts = guiName.split(":");
+                    if (parts.length >= 3) {
+                        page = Integer.parseInt(parts[2]);
+                    }
+                } catch (NumberFormatException e) {
+                    page = 0;
+                }
+
                 for (HotelRoom room : plugin.getRoomStorage().getRoomsByOwner(player.getUniqueId())) {
                     if (room.getName().equals(roomName)) {
                         if (col.getRoomIds().contains(room.getId())) {
@@ -320,7 +330,7 @@ public class GUIListener implements Listener {
                             player.sendMessage("§a已添加房间 §e" + room.getName() + " §a到合集");
                         }
                         plugin.getRoomStorage().saveCollection(col);
-                        CollectionGUI.openManageCollection(player, col, plugin);
+                        CollectionGUI.openManageCollection(player, col, plugin, page);
                         return;
                     }
                 }
