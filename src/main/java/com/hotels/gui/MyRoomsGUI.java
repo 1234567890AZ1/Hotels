@@ -39,7 +39,7 @@ import java.util.List;
 public class MyRoomsGUI {
 
     public static final String GUI_NAME = "my_rooms";
-    private static final int PAGE_SIZE = 45;
+    private static final int PAGE_SIZE = 36;
 
     public static void open(Player player, HotelsPlugin plugin) {
         open(player, plugin, 0);
